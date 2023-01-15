@@ -1,29 +1,14 @@
 const express = require('express')
-const router = express.Router() 
-const Task = require('./../models/task')
+const router = express.Router()
 
-module.exports = router 
-
-router.get('/new', (req, res) => {
-  res.render('tasks/new', { task: new Task() })
-})
-
-router.get('/:id', (req, res) => {
-  res.send(req.params.id)
-})
+const { getAll, getOne, taskCreate, taskDelete, taskUpdate } = require('../controllers/tasks')
 
 
-router.post('/', async (req, res) => {
-  let task = new Task({
-    title: req.body.title,
-    description: req.body.description,
-    time: req.body.time,
-    date: req.body.date
-  })
-  try {
-    task = await task.save() 
-    res.redirect(`/tasks/${task.id}`)
-  } catch(e) {
-    res.render('tasks/new', { task: task })
-  }
-})
+router.get('/' , getAll)
+router.post('/', taskCreate)
+router.get('/:id', getOne)
+router.patch('/:id', taskUpdate)
+router.delete('/:id', taskDelete)
+
+
+module.exports = router

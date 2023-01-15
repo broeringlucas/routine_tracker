@@ -1,36 +1,26 @@
 const express = require('express')
-const articleRouter = require('./routes/tasks')
-const path = require('path')
-const mongoose = require('mongoose')
 const app = express() 
-
-const DB_URL = "mongodb://127.0.0.1:27017/demo"
-mongoose.set('strictQuery', true)
-// rever nome depois // 
-mongoose.connect('mongodb://localhost/routine_tracker')
+const tasks = require('./routes/tasks')
+const connectDB = require('./db/connect')
+require('dotenv').config() 
 
 
-app.set('view engine', 'ejs')
-app.use(express.static(path.join(__dirname, 'public')))
 
-app.use(express.urlencoded({ extended: false}))
-app.use('/tasks', articleRouter)
+//middleware
+app.use(express.static('./public'))
+app.use(express.json())
 
+//routes
+app.use('/tasks', tasks)
 
-app.get('/', (req, res) => {
-  const tasks = [{
-    title: 'test task title',
-    description: 'test task description',
-    time: '9 AM',
-    date: '1/5/2023'
-  },
-  {
-    title: 'test task title',
-    description: 'test task description',
-    time: '9 AM',
-    date: '1/5/2023'
-  }]
-  res.render('tasks/index', { tasks: tasks })
-})
+const start = async () => {
+  try {
+    await connectDB(process.env.MONGODB_URI)
+    app.listen(5000, console.log('listening to port 5000'))
 
-app.listen(3000)
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+start() 
